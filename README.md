@@ -9,7 +9,7 @@ SnipleyFuzz is a priority-based, response-oriented black-box fuzzing framework f
 
 ## Overview of SnipleyFuzz
 
-![SnipleyFuzz-arch](./frameword.png)
+![framework](./framework.png)
 
 ## Instructions for running this tool
 
