@@ -353,7 +353,7 @@ def advanced_mutate(seeds: list[Seed], interact: Messenger):
         for seed in seeds:
             if seed is not selected_seed:
                 seed.interval += 1
-        for msg in selected_seed.messages:
+        for msg in selected_seed.M:
             if msg is not selected_msg:
                 msg.interval += 1
         

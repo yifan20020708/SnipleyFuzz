@@ -118,55 +118,52 @@ def advanced_mutate(seeds: list[Seed], interact: Messenger):
         seed_sequence = selected_seed.M
         mutated_msg_index = seed_sequence.index(selected_msg)
         # Build mutated message bytes by applying one random mutation strategy per selected snippet
-        original_bytes = b''
-        if hasattr(selected_msg, 'data'):
-            original_bytes = selected_msg.raw["Content"]
-        else:
-            # reconstruct original message bytes from snippet data
-            original_bytes = b''.join(snip.original_data for snip in selected_cluster.snippets)
-        mutated_bytes = b''
+        original_str = selected_msg.raw["Content"]
+        original_bytes = original_str.encode('utf-8') if isinstance(original_str, str) else original_str
+        mutated_str = list(original_str)
         last_idx = 0
         selected_snippets_sorted = sorted(selected_snippets, key=lambda s: s.start)
         # Apply mutations for each selected snippet sequentially
         strategies = {}
         for snip in selected_snippets_sorted:
             # Append unchanged portion from last index up to snippet start
-            if snip.start > last_idx:
-                mutated_bytes += original_bytes[last_idx: snip.start]
             # Choose a random mutation strategy for this snippet (only once per snippet)
             strategy = np.random.choice(['remove', 'flip', 'boundary', 'duplicate', 'insert'])
             strategies[snip] = strategy
+            
+            start = snip.original_data[0] if isinstance(snip.original_data, list) and len(snip.original_data) > 0 else snip.start
+            end = snip.original_data[1] if isinstance(snip.original_data, list) and len(snip.original_data) > 1 else snip.end
+            
+            snippet_content = original_str[start:end+1]
+            
             if strategy == 'remove':
                 # Skip this snippet's bytes (omit it)
-                pass
+                mutated_str[start:end+1] = []
             elif strategy == 'flip':
-                # Byte flipping: invert each byte in snippet
-                flipped = bytes([b ^ 0xFF for b in snip.original_data])
-                mutated_bytes += flipped
+                # Character flipping: invert each character
+                flipped = ''.join(chr(255 - ord(c)) for c in snippet_content)
+                mutated_str[start:end+1] = list(flipped)
             elif strategy == 'boundary':
-                # Boundary value: replace snippet bytes with 0xFF
-                boundary_bytes = bytes([0xFF] * len(snip.original_data))
-                mutated_bytes += boundary_bytes
+                # Boundary value: replace snippet with special characters
+                boundary_chars = '\xff' * len(snippet_content)
+                mutated_str[start:end+1] = list(boundary_chars)
             elif strategy == 'duplicate':
                 # Duplicate snippet content
-                mutated_bytes += snip.original_data + snip.original_data
+                mutated_str[start:end+1] = list(snippet_content + snippet_content)
             elif strategy == 'insert':
-                # Random byte insertion within snippet
-                rand_byte = bytes([np.random.randint(0, 256)])
-                insert_pos = np.random.randint(0, len(snip.original_data) + 1)
-                new_bytes = snip.original_data[:insert_pos] + rand_byte + snip.original_data[insert_pos:]
-                mutated_bytes += new_bytes
-            # Update last_idx beyond this snippet's original end
-            last_idx = snip.end
-        # Append any remaining bytes after the last mutated snippet
-        if last_idx < len(original_bytes):
-            mutated_bytes += original_bytes[last_idx:]
+                # Random character insertion within snippet
+                rand_char = chr(np.random.randint(0, 256))
+                insert_pos = np.random.randint(0, len(snippet_content) + 1)
+                new_content = snippet_content[:insert_pos] + rand_char + snippet_content[insert_pos:]
+                mutated_str[start:end+1] = list(new_content)
+        # Join back to string
+        mutated_str = ''.join(mutated_str)
         # Prepare test case message sequence (replace selected message with mutated content)
         test_case_messages = []
         for i, msg in enumerate(seed_sequence):
             if i == mutated_msg_index:
                 mutated_msg = copy.copy(msg)
-                mutated_msg.data = mutated_bytes
+                mutated_msg.raw["Content"] = mutated_str
                 test_case_messages.append(mutated_msg)
             else:
                 test_case_messages.append(msg)
@@ -395,7 +392,7 @@ def advanced_mutate(seeds: list[Seed], interact: Messenger):
         for seed in seeds:
             if seed is not selected_seed:
                 seed.interval += 1
-        for msg in selected_seed.messages:
+        for msg in selected_seed.M:
             if msg is not selected_msg:
                 msg.interval += 1
         

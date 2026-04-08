@@ -3,9 +3,14 @@ import random
 import string
 from statistics import mean
 from typing import List, Tuple
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+
+# 使用当前文件所在目录作为基础路径
+current_dir = Path(__file__).parent
+chart_dir = current_dir.parent / "chart"
 
 
 def random_string(length: int) -> str:
@@ -343,5 +348,5 @@ if __name__ == "__main__":
     ax.spines["right"].set_visible(False)
 
     plt.tight_layout()
-    plt.savefig("/home/SnipleyFuzz/experiment/chart/mutation_consume.png", dpi=600, bbox_inches='tight')
-    plt.savefig("/home/SnipleyFuzz/experiment/chart/mutation_consume.pdf", bbox_inches='tight')
+    plt.savefig(str(chart_dir / "mutation_consume.png"), dpi=600, bbox_inches='tight')
+    plt.savefig(str(chart_dir / "mutation_consume.pdf"), bbox_inches='tight')

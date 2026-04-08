@@ -11,9 +11,34 @@ SnipleyFuzz is a priority-based, response-oriented black-box fuzzing framework f
 
 ![framework](./framework.png)
 
+## Environment Setup
+
+### Python Environment
+
+1. **Create a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   ```
+
+2. **Activate the virtual environment**:
+   - macOS/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
+   - Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
 ## Instructions for running this tool
 
-``````bash
+```bash
 usage: snipleyfuzz.py [-h] --restorefile RESTOREFILE --outputfold OUTPUTFOLD --inputfold INPUTFOLD --devicetype DEVICETYPE --devicename DEVICENAME
                       (--recordfile RECORDFILE | --probefold PROBEFOLD)
 
@@ -28,9 +53,9 @@ options:
   --inputfold INPUTFOLD
                         Directory of initial seed inputs.
   --devicetype DEVICETYPE
-                        Device type (e.g., 'yeelight', 'xiaomi'); passed to Messenger for low-level communication.
+                        Device type (e.g., 'yeelight', 'xiaomi', 'tplink'); passed to Messenger for low-level communication.
   --devicename DEVICENAME
-                        Device name (e.g., 'YLDP05YL', 'YLDP13YL'); passed to construct the output file name.
+                        Device name (e.g., 'YLDP05YL', 'YLDP13YL', 'HS100'); passed to construct the output file name.
   --recordfile RECORDFILE
                         Probe record file path; if exists, Probe phase will be skipped.
   --probefold PROBEFOLD

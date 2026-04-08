@@ -81,7 +81,7 @@ def readInputFold(fold):
     seeds = []
     files = os.listdir(fold)
     for file in files:
-        logger.info("Loading file: ", os.path.join(fold, file))
+        logger.info(f"Loading file: {os.path.join(fold, file)}")
         seeds.append(readInputFile(os.path.join(fold, file)))
     return seeds
 

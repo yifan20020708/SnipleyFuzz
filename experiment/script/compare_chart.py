@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
+
+# 使用当前文件所在目录作为基础路径
+current_dir = Path(__file__).parent
+chart_dir = current_dir.parent / "chart"
 
 plt.rcParams.update({
     "font.size": 11,
@@ -132,5 +137,5 @@ handles, labels = axes[0,0].get_legend_handles_labels()
 fig.legend(handles, labels, loc='upper center', ncol=3, frameon=False, bbox_to_anchor=(0.5, 1.01))
 
 plt.tight_layout(rect=[0, 0, 1, 0.98])
-plt.savefig("/home/SnipleyFuzz/experiment/chart/firmware_comparison.png", dpi=600, bbox_inches='tight')
-plt.savefig("/home/SnipleyFuzz/experiment/chart/firmware_comparison.pdf", bbox_inches='tight')
+plt.savefig(str(chart_dir / "firmware_comparison.png"), dpi=600, bbox_inches='tight')
+plt.savefig(str(chart_dir / "firmware_comparison.pdf"), bbox_inches='tight')

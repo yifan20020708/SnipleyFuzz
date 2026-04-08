@@ -1,9 +1,16 @@
 import sys
 import os
-sys.path.append("/home/SnipleyFuzz/device/mihome/simple-mi-home")
+from pathlib import Path
+
+# 构建相对路径指向 simple-mi-home 目录
+current_dir = Path(__file__).parent
+mi_home_dir = current_dir.parent / "simple-mi-home"
+sys.path.append(str(mi_home_dir))
+
 from MiApi.service import MiService
 
-PLUG_PATH = "/home/SnipleyFuzz/device/mihome/plug"
+# 使用当前文件所在目录作为路径
+PLUG_PATH = str(current_dir)
 
 command_type = [
     "/miotspec/prop/set",

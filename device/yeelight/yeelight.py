@@ -2,8 +2,10 @@ import socket
 import time
 import os
 import re
+from pathlib import Path
 
-YEELIGHT_PATH = "/home/SnipleyFuzz/device/yeelight"
+# 使用当前文件所在目录作为路径
+YEELIGHT_PATH = str(Path(__file__).parent)
 
 command_message = [
     '{"id":1,"method":"set_power","params":["on"]}',

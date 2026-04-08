@@ -5,17 +5,24 @@ import signal
 import os
 import threading
 import math
+from pathlib import Path
 import matplotlib.pyplot as plt
 
-YEELIGHT_INITIAL_FOLD = "/home/SnipleyFuzz/device/yeelight/InitialSeed"
-MIHOME_CAMERA_INITIAL_FOLD = "/home/SnipleyFuzz/device/mihome/camera/InitialSeed"
-MIHOME_PLUG_INITIAL_FOLD = "/home/SnipleyFuzz/device/mihome/plug/InitialSeed"
+# 使用当前文件所在目录作为基础路径
+current_dir = Path(__file__).parent
+project_root = current_dir.parent.parent
+device_dir = project_root / "device"
+experiment_dir = project_root / "experiment"
 
-OUTPUT_FOLD = "/home/SnipleyFuzz/experiment/output/ablation"
+YEELIGHT_INITIAL_FOLD = str(device_dir / "yeelight" / "InitialSeed")
+MIHOME_CAMERA_INITIAL_FOLD = str(device_dir / "mihome" / "camera" / "InitialSeed")
+MIHOME_PLUG_INITIAL_FOLD = str(device_dir / "mihome" / "plug" / "InitialSeed")
 
-YEELIGHT_RESTOREFILE = "/home/SnipleyFuzz/device/yeelight/RestoreSeed.txt"
-MIHOME_CAMERA_RESTOREFILE = "/home/SnipleyFuzz/device/mihome/camera/RestoreSeed.txt"
-MIHOME_PLUG_RESTOREFILE = "/home/SnipleyFuzz/device/mihome/plug/RestoreSeed.txt"
+OUTPUT_FOLD = str(experiment_dir / "output" / "ablation")
+
+YEELIGHT_RESTOREFILE = str(device_dir / "yeelight" / "RestoreSeed.txt")
+MIHOME_CAMERA_RESTOREFILE = str(device_dir / "mihome" / "camera" / "RestoreSeed.txt")
+MIHOME_PLUG_RESTOREFILE = str(device_dir / "mihome" / "plug" / "RestoreSeed.txt")
 
 YEELIGHT_TYPE = "yeelight"
 MIHOME_TYPE = "xiaomi"
@@ -24,26 +31,26 @@ YEELIGHT_NAME = "YLDP05YL"
 MIHOME_CAMERA_NAME = "Camera.069a01"
 MIHOME_PLUG_NAME = "Plug.cuco.v3"
 
-YEELIGHT_PROBERECORD_FILE = "/home/SnipleyFuzz/device/yeelight/ProbeRecord.txt"
-MIHOME_CAMERA_PROBERECORD_FILE = "/home/SnipleyFuzz/device/mihome/camera/ProbeRecord.txt"
-MIHOME_PLUG_PROBERECORD_FILE = "/home/SnipleyFuzz/device/mihome/plug/ProbeRecord.txt"
+YEELIGHT_PROBERECORD_FILE = str(device_dir / "yeelight" / "ProbeRecord.txt")
+MIHOME_CAMERA_PROBERECORD_FILE = str(device_dir / "mihome" / "camera" / "ProbeRecord.txt")
+MIHOME_PLUG_PROBERECORD_FILE = str(device_dir / "mihome" / "plug" / "ProbeRecord.txt")
 
 python_files_first_round = [
-    f"python /home/SnipleyFuzz/tool/snipleyfuzz.py --restorefile {YEELIGHT_RESTOREFILE} --inputfold {YEELIGHT_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {YEELIGHT_TYPE} --devicename {YEELIGHT_NAME} --recordfile {YEELIGHT_PROBERECORD_FILE}",
-    f"python /home/SnipleyFuzz/tool/snipleyfuzz.py --restorefile {MIHOME_CAMERA_RESTOREFILE} --inputfold {MIHOME_CAMERA_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_CAMERA_NAME} --recordfile {MIHOME_CAMERA_PROBERECORD_FILE}",
-    f"python /home/SnipleyFuzz/tool/snipleyfuzz.py --restorefile {MIHOME_PLUG_RESTOREFILE} --inputfold {MIHOME_PLUG_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_PLUG_NAME} --recordfile {MIHOME_PLUG_PROBERECORD_FILE}"
+    f"python {project_root / 'tool' / 'snipleyfuzz.py'} --restorefile {YEELIGHT_RESTOREFILE} --inputfold {YEELIGHT_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {YEELIGHT_TYPE} --devicename {YEELIGHT_NAME} --recordfile {YEELIGHT_PROBERECORD_FILE}",
+    f"python {project_root / 'tool' / 'snipleyfuzz.py'} --restorefile {MIHOME_CAMERA_RESTOREFILE} --inputfold {MIHOME_CAMERA_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_CAMERA_NAME} --recordfile {MIHOME_CAMERA_PROBERECORD_FILE}",
+    f"python {project_root / 'tool' / 'snipleyfuzz.py'} --restorefile {MIHOME_PLUG_RESTOREFILE} --inputfold {MIHOME_PLUG_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_PLUG_NAME} --recordfile {MIHOME_PLUG_PROBERECORD_FILE}"
 ]
 
 python_files_second_round = [
-    f"python /home/SnipleyFuzz/experiment/fuzzers/SnipleyFuzz-CMAB-based/snipleyfuzz_cmab.py --restorefile {YEELIGHT_RESTOREFILE} --inputfold {YEELIGHT_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {YEELIGHT_TYPE} --devicename {YEELIGHT_NAME} --recordfile {YEELIGHT_PROBERECORD_FILE}",
-    f"python /home/SnipleyFuzz/experiment/fuzzers/SnipleyFuzz-CMAB-based/snipleyfuzz_cmab.py --restorefile {MIHOME_CAMERA_RESTOREFILE} --inputfold {MIHOME_CAMERA_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_CAMERA_NAME} --recordfile {MIHOME_CAMERA_PROBERECORD_FILE}",
-    f"python /home/SnipleyFuzz/experiment/fuzzers/SnipleyFuzz-CMAB-based/snipleyfuzz_cmab.py --restorefile {MIHOME_PLUG_RESTOREFILE} --inputfold {MIHOME_PLUG_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_PLUG_NAME} --recordfile {MIHOME_PLUG_PROBERECORD_FILE}"
+    f"python {experiment_dir / 'fuzzers' / 'SnipleyFuzz-CMAB-based' / 'snipleyfuzz_cmab.py'} --restorefile {YEELIGHT_RESTOREFILE} --inputfold {YEELIGHT_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {YEELIGHT_TYPE} --devicename {YEELIGHT_NAME} --recordfile {YEELIGHT_PROBERECORD_FILE}",
+    f"python {experiment_dir / 'fuzzers' / 'SnipleyFuzz-CMAB-based' / 'snipleyfuzz_cmab.py'} --restorefile {MIHOME_CAMERA_RESTOREFILE} --inputfold {MIHOME_CAMERA_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_CAMERA_NAME} --recordfile {MIHOME_CAMERA_PROBERECORD_FILE}",
+    f"python {experiment_dir / 'fuzzers' / 'SnipleyFuzz-CMAB-based' / 'snipleyfuzz_cmab.py'} --restorefile {MIHOME_PLUG_RESTOREFILE} --inputfold {MIHOME_PLUG_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_PLUG_NAME} --recordfile {MIHOME_PLUG_PROBERECORD_FILE}"
 ]
 
 python_files_third_round = [
-    f"python /home/SnipleyFuzz/experiment/fuzzers/SnipleyFuzz-priority-based/snipleyfuzz_priority.py --restorefile {YEELIGHT_RESTOREFILE} --inputfold {YEELIGHT_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {YEELIGHT_TYPE} --devicename {YEELIGHT_NAME} --recordfile {YEELIGHT_PROBERECORD_FILE}",
-    f"python /home/SnipleyFuzz/experiment/fuzzers/SnipleyFuzz-priority-based/snipleyfuzz_priority.py --restorefile {MIHOME_CAMERA_RESTOREFILE} --inputfold {MIHOME_CAMERA_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_CAMERA_NAME} --recordfile {MIHOME_CAMERA_PROBERECORD_FILE}",
-    f"python /home/SnipleyFuzz/experiment/fuzzers/SnipleyFuzz-priority-based/snipleyfuzz_priority.py --restorefile {MIHOME_PLUG_RESTOREFILE} --inputfold {MIHOME_PLUG_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_PLUG_NAME} --recordfile {MIHOME_PLUG_PROBERECORD_FILE}"
+    f"python {experiment_dir / 'fuzzers' / 'SnipleyFuzz-priority-based' / 'snipleyfuzz_priority.py'} --restorefile {YEELIGHT_RESTOREFILE} --inputfold {YEELIGHT_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {YEELIGHT_TYPE} --devicename {YEELIGHT_NAME} --recordfile {YEELIGHT_PROBERECORD_FILE}",
+    f"python {experiment_dir / 'fuzzers' / 'SnipleyFuzz-priority-based' / 'snipleyfuzz_priority.py'} --restorefile {MIHOME_CAMERA_RESTOREFILE} --inputfold {MIHOME_CAMERA_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_CAMERA_NAME} --recordfile {MIHOME_CAMERA_PROBERECORD_FILE}",
+    f"python {experiment_dir / 'fuzzers' / 'SnipleyFuzz-priority-based' / 'snipleyfuzz_priority.py'} --restorefile {MIHOME_PLUG_RESTOREFILE} --inputfold {MIHOME_PLUG_INITIAL_FOLD} --outputfold {OUTPUT_FOLD} --devicetype {MIHOME_TYPE} --devicename {MIHOME_PLUG_NAME} --recordfile {MIHOME_PLUG_PROBERECORD_FILE}"
 ]
 
 python_files = [python_files_first_round, python_files_second_round, python_files_third_round]

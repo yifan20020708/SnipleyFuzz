@@ -6,7 +6,7 @@ const devices = [];
 devices.push(
     new Device({
       port: 9999,
-      address: '192.168.100.21',
+      address: '192.168.100.20',
       model: 'hs110',
       data: { alias: 'Mock HS110', mac: '50:c7:bf:8f:58:19', deviceId: 'A110' },
     }),

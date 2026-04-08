@@ -6,10 +6,15 @@ import json
 import sys
 import signal
 import logging
+from pathlib import Path
 from colorama import init, Fore
 import cfg
-import sys
-sys.path.append("/home/SnipleyFuzz/device/mihome/simple-mi-home")
+
+# 构建相对路径指向 simple-mi-home 目录
+current_dir = Path(__file__).parent
+mi_home_dir = current_dir.parent.parent.parent / "device" / "mihome" / "simple-mi-home"
+sys.path.append(str(mi_home_dir))
+
 try:
     from MiApi.service import MiService
 except Exception:  # 环境引入失败

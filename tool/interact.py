@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
-import time
 import socket
+import time
 import ast
 import json
 import sys
 import signal
 import logging
+import subprocess
+from pathlib import Path
 from colorama import init, Fore
 import cfg
-import sys
-sys.path.append("/home/SnipleyFuzz/device/mihome/simple-mi-home")
+
+# 构建相对路径指向 simple-mi-home 目录
+current_dir = Path(__file__).parent
+mi_home_dir = current_dir.parent / "device" / "mihome" / "simple-mi-home"
+sys.path.append(str(mi_home_dir))
+
 try:
     from MiApi.service import MiService
 except Exception:  # 环境引入失败
@@ -125,6 +131,8 @@ class Messenger:
             if MiService is None:
                 raise RuntimeError("MiService module not found. Please check the environment setup.")
             return self._send_xiaomi(message, timeout_time)
+        elif self.device_type == "tplink":
+            return self._send_tplink(message, timeout_time, retrytime)
         else:
             logger.error(f"{Fore.RED}[ERROR] Unsupported device_type: {self.device_type}{Fore.RESET}")
             return "#error"
@@ -235,4 +243,72 @@ class Messenger:
             return response
         else:
             logger.error("Error : device_id (did) and uri of target should be included in input files")
+            return "#error"
+
+    # TP-Link 设备实现
+    def _send_tplink(self, message, timeout_time=0, retrytime=0):
+        if "IP" in message.headers and "Content" in message.headers:
+            ip = message.raw["IP"].strip()
+            content = message.raw["Content"].strip()
+            response = ''
+            max_retries = cfg.TPLINK_MAX_RETRY
+            localtime = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime(time.time()))
+            init()
+
+            # 构建相对路径指向模拟器和输出目录
+            current_dir = Path(__file__).parent
+            js_file_path = current_dir.parent / "device" / "tplink" / "simulator" / "simulator_hs100.js"
+            
+            process_simulation = None
+            
+            try:
+                # 启动模拟器
+                if js_file_path.exists():
+                    command_simulation = ["node", str(js_file_path)]
+                    process_simulation = subprocess.Popen(command_simulation)
+                    time.sleep(1)  # 等待模拟器启动
+                
+                # 发送命令
+                command = ["tplink-smarthome-api", "send", ip, content]
+                result = subprocess.run(command, capture_output=True, text=True, timeout=10)
+                
+                if "Error" in result.stderr:
+                    # 检测到错误，记录 crash
+                    return "#crash"
+                else:
+                    response = result.stdout + "\r\n"
+                    logger.info(f"{Fore.GREEN}[+]{localtime}:Successful receive response from TP-Link!{Fore.RESET}")
+            
+            except subprocess.TimeoutExpired:
+                logger.error(f"{Fore.RED}[ERROR]{localtime}:Timeout during TP-Link command execution! Retrying ({timeout_time + 1}/{cfg.TPLINK_TIMEOUT_TIMES}){Fore.RESET}")
+                if timeout_time < cfg.TPLINK_TIMEOUT_TIMES:
+                    if process_simulation:
+                        process_simulation.terminate()
+                    time.sleep(0.5)
+                    response = self.sendMessage(message, timeout_time + 1, retrytime)
+                else:
+                    if process_simulation:
+                        process_simulation.terminate()
+                    return "#crash"
+            except Exception as e:
+                if retrytime < max_retries:
+                    logger.error(f"{Fore.RED}[ERROR]{localtime}:{str(e)}! Retrying ({retrytime + 1}/{max_retries}){Fore.RESET}")
+                    if process_simulation:
+                        process_simulation.terminate()
+                    time.sleep(0.5)
+                    response = self.sendMessage(message, timeout_time, retrytime + 1)
+                else:
+                    if process_simulation:
+                        process_simulation.terminate()
+                    return "#crash"
+            finally:
+                if process_simulation:
+                    try:
+                        process_simulation.terminate()
+                    except:
+                        pass
+            
+            return response
+        else:
+            logger.error("Error : IP and Content of target should be included in input files")
             return "#error"

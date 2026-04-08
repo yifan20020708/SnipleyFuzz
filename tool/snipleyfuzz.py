@@ -78,7 +78,7 @@ def readInputFold(fold):
     seeds = []
     files = os.listdir(fold)
     for file in files:
-        logger.info("Loading file: ", os.path.join(fold, file))
+        logger.info(f"Loading file: {os.path.join(fold, file)}")
         seeds.append(readInputFile(os.path.join(fold, file)))
     return seeds
 
@@ -674,13 +674,13 @@ def snipleyfuzz():
         "--devicetype",
         type=str,
         required=True,
-        help="Device type (e.g., 'yeelight', 'xiaomi'); passed to Messenger for low-level communication."
+        help="Device type (e.g., 'yeelight', 'xiaomi', 'tplink'); passed to Messenger for low-level communication."
     )
     parser.add_argument(
         "--devicename",
         type=str,
         required=True,
-        help="Device name (e.g., 'YLDP05YL', 'YLDP13YL'); passed to construct the output file name."
+        help="Device name (e.g., 'YLDP05YL', 'YLDP13YL', 'HS100'); passed to construct the output file name."
     )
     # 互斥组：--recordfile 和 --probefold 二选一，且不能同时出现
     group = parser.add_mutually_exclusive_group(required=True)
@@ -745,11 +745,11 @@ def snipleyfuzz():
     else:
         logger.info(f"{Fore.BLUE}Start to exec Probe process!{Fore.RESET}")
         queue = readInputFold(inputfold)
-        if (dryRun(queue)):  
-            logger.error('#### Dry run failed, check the inputs or connection.')
-            sys.exit()
+        if device_type != "tplink":
+            if (dryRun(queue)):  
+                logger.error('#### Dry run failed, check the inputs or connection.')
+                sys.exit()
         for i in range(len(queue)):
-            queue[i].display()
             logger.info(f"{Fore.BLUE}Start to exec Probe process for seed{i}! {i + 1}/{len(queue)}{Fore.RESET}")
             queue[i] = Probe(queue[i])
         # update the information

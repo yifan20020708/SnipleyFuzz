@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./device/mihome/simple-mi-home"
+    ]
+}
